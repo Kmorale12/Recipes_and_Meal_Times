@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'home_screen.dart';
+import 'database_helper.dart';
 import 'recipe_area.dart';
-import 'meal_planner.dart';
-import 'grocery_list.dart';
-import 'settings_screen.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final dbHelper = DatabaseHelper();
+  await dbHelper.insertSampleRecipes();
   runApp(MyApp());
 }
 
@@ -17,14 +17,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      initialRoute: '/',
-      routes: {
-        '/': (context) => HomeScreen(),
-        '/recipes': (context) => RecipeArea(),
-        '/meal-planner': (context) => MealPlanner(),
-        '/grocery-list': (context) => GroceryList(),
-        '/settings': (context) => SettingsScreen(),
-      },
+      home: RecipeArea(),
     );
   }
 }
