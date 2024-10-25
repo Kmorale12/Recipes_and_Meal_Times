@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'database_helper.dart';
-import 'recipe_area.dart';
+import 'home_screen.dart';
+import 'database_helper.dart'; // Import DatabaseHelper
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: RecipeArea(),
+      home: HomeScreen(),
     );
   }
 }

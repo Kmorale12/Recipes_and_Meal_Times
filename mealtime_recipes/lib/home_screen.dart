@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'recipe_area.dart';
 import 'meal_planner.dart';
 import 'grocery_list.dart';
-import 'settings_screen.dart';
+import 'settings_screen.dart'; // Import SettingsScreen
 
 class HomeScreen extends StatelessWidget {
   @override

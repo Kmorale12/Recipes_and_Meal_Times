@@ -37,6 +37,12 @@ class _RecipeAreaState extends State<RecipeArea> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Recipe Area'),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
         actions: [
           IconButton(
             icon: Icon(Icons.search),

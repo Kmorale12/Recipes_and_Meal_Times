@@ -150,6 +150,21 @@ class DatabaseHelper {
     return await db.query('recipes', where: 'isFavorite = ?', whereArgs: [1]);
   }
 
+  Future<List<String>> fetchIngredientsByTitle(String title) async {
+    final db = await database;
+    final result = await db.query(
+      'recipes',
+      columns: ['ingredients'],
+      where: 'LOWER(title) = ?',
+      whereArgs: [title.toLowerCase()],
+    );
+    if (result.isNotEmpty) {
+      final ingredients = result.first['ingredients'] as String;
+      return ingredients.split(', ');
+    }
+    return [];
+  }
+
   Future<void> updateFavoriteStatus(int id, int isFavorite) async {
     final db = await database;
     await db.update(
