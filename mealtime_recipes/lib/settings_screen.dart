@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'database_helper.dart';
 import 'login_screen.dart';
+import 'theme_notifier.dart';
 
 class SettingsScreen extends StatefulWidget {
   final int userId;
@@ -12,14 +14,7 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  bool _isDarkMode = false;
   final _passwordController = TextEditingController();
-
-  void _toggleDarkMode(bool value) {
-    setState(() {
-      _isDarkMode = value;
-    });
-  }
 
   void _updatePassword() async {
     final newPassword = _passwordController.text;
@@ -39,6 +34,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final themeNotifier = Provider.of<ThemeNotifier>(context);
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Settings'),
@@ -47,8 +44,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
         children: <Widget>[
           SwitchListTile(
             title: Text('Dark Mode'),
-            value: _isDarkMode,
-            onChanged: _toggleDarkMode,
+            value: themeNotifier.isDarkMode,
+            onChanged: (value) {
+              themeNotifier.toggleTheme(value);
+            },
           ),
           ListTile(
             title: Text('Update Password'),
