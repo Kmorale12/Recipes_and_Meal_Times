@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'database_helper.dart'; // Import the DatabaseHelper
 import 'recipe_details.dart'; // Import RecipeDetails to navigate to it
+import 'favorites_page.dart'; // Import the FavoritesPage
 
 class RecipeArea extends StatefulWidget {
   @override
@@ -46,6 +47,12 @@ class _RecipeAreaState extends State<RecipeArea> {
     });
   }
 
+  Future<void> _toggleFavorite(int id, int isFavorite) async {
+    final dbHelper = DatabaseHelper();
+    await dbHelper.toggleFavorite(id, isFavorite);
+    fetchRecipes(); // Refresh the recipes list
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -57,6 +64,17 @@ class _RecipeAreaState extends State<RecipeArea> {
             border: InputBorder.none,
           ),
         ),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.favorite),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => FavoritesPage()),
+              );
+            },
+          ),
+        ],
       ),
       body: filteredRecipes.isEmpty
           ? Center(child: CircularProgressIndicator()) // Show loading indicator if recipes are not yet loaded
@@ -73,6 +91,18 @@ class _RecipeAreaState extends State<RecipeArea> {
                   ),
                   title: Text(recipe['title']),
                   subtitle: Text(recipe['dietary_tags'] ?? ''),
+                  trailing: IconButton(
+                    icon: Icon(
+                      recipe['isFavorite'] == 1 ? Icons.favorite : Icons.favorite_border,
+                      color: recipe['isFavorite'] == 1 ? Colors.red : null,
+                    ),
+                    onPressed: () async {
+                      await _toggleFavorite(recipe['id'], recipe['isFavorite'] == 1 ? 0 : 1);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('${recipe['title']} ${recipe['isFavorite'] == 1 ? 'removed from' : 'added to'} favorites')),
+                      );
+                    },
+                  ),
                   onTap: () {
                     // Navigate to RecipeDetails with the recipe details
                     Navigator.push(

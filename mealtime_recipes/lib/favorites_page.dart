@@ -1,11 +1,27 @@
 import 'package:flutter/material.dart';
-import 'database_helper.dart';
-import 'recipe_details.dart';
+import 'database_helper.dart'; // Import the DatabaseHelper
 
-class FavoritesPage extends StatelessWidget {
-  Future<List<Map<String, dynamic>>> fetchFavoriteRecipes() async {
-    final db = await DatabaseHelper().database;
-    return await db.query('recipes', where: 'isFavorite = ?', whereArgs: [1]);
+class FavoritesPage extends StatefulWidget {
+  @override
+  _FavoritesPageState createState() => _FavoritesPageState();
+}
+
+class _FavoritesPageState extends State<FavoritesPage> {
+  List<Map<String, dynamic>> favoriteRecipes = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchFavorites(); // Fetch favorite recipes when this screen loads
+  }
+
+  // Function to fetch favorite recipes from the database
+  Future<void> fetchFavorites() async {
+    final dbHelper = DatabaseHelper();
+    final List<Map<String, dynamic>> fetchedFavorites = await dbHelper.fetchFavoriteRecipes();
+    setState(() {
+      favoriteRecipes = fetchedFavorites;
+    });
   }
 
   @override
@@ -14,37 +30,24 @@ class FavoritesPage extends StatelessWidget {
       appBar: AppBar(
         title: Text('Favorite Recipes'),
       ),
-      body: FutureBuilder<List<Map<String, dynamic>>>(
-        future: fetchFavoriteRecipes(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else if (!snapshot.hasData || snapshot.data?.isEmpty == true) {
-            return Center(child: Text('No favorite recipes found.'));
-          } else {
-            return ListView.builder(
-              itemCount: snapshot.data?.length ?? 0,
+      body: favoriteRecipes.isEmpty
+          ? Center(child: Text('No favorite recipes yet'))
+          : ListView.builder(
+              itemCount: favoriteRecipes.length,
               itemBuilder: (context, index) {
-                final recipe = snapshot.data![index];
+                final recipe = favoriteRecipes[index];
                 return ListTile(
-                  leading: Image.network(recipe['image']),
+                  leading: Image.asset(
+                    recipe['image'],
+                    width: 50,
+                    height: 50,
+                    fit: BoxFit.cover,
+                  ),
                   title: Text(recipe['title']),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => RecipeDetails(recipe: recipe),
-                      ),
-                    );
-                  },
+                  subtitle: Text(recipe['dietary_tags'] ?? ''),
                 );
               },
-            );
-          }
-        },
-      ),
+            ),
     );
   }
 }
