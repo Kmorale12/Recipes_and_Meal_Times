@@ -96,7 +96,7 @@ class DatabaseHelper {
     final sampleRecipes = [
       {
         'title': 'Spaghetti Carbonara',
-        'image': 'https://example.com/spaghetti.jpg',
+        'image': 'assets/carbonara.png',
         'ingredients': 'Spaghetti, Eggs, Parmesan, Pancetta, Pepper',
         'instructions': 'Boil pasta. Cook pancetta. Mix eggs and cheese. Combine all.',
         'isFavorite': 0,
@@ -104,7 +104,7 @@ class DatabaseHelper {
       },
       {
         'title': 'Vegan Tacos',
-        'image': 'https://example.com/tacos.jpg',
+        'image': 'assets/tacos.png',
         'ingredients': 'Tortillas, Black Beans, Corn, Avocado, Salsa',
         'instructions': 'Warm tortillas. Fill with beans, corn, avocado, and salsa.',
         'isFavorite': 0,
@@ -112,7 +112,7 @@ class DatabaseHelper {
       },
       {
         'title': 'Chicken Curry',
-        'image': 'https://example.com/chicken_curry.jpg',
+        'image': 'assets/curry.png',
         'ingredients': 'Chicken, Curry Powder, Coconut Milk, Onions, Garlic, Ginger',
         'instructions': 'Cook onions, garlic, and ginger. Add chicken and curry powder. Add coconut milk and simmer.',
         'isFavorite': 0,
@@ -120,7 +120,7 @@ class DatabaseHelper {
       },
       {
         'title': 'Beef Stroganoff',
-        'image': 'https://example.com/beef_stroganoff.jpg',
+        'image': 'assets/stroganoff.png',
         'ingredients': 'Beef, Mushrooms, Onions, Sour Cream, Beef Broth',
         'instructions': 'Cook beef and onions. Add mushrooms and broth. Stir in sour cream.',
         'isFavorite': 0,
@@ -128,7 +128,7 @@ class DatabaseHelper {
       },
       {
         'title': 'Caesar Salad',
-        'image': 'https://example.com/caesar_salad.jpg',
+        'image': 'assets/salad.png',
         'ingredients': 'Romaine Lettuce, Caesar Dressing, Croutons, Parmesan Cheese',
         'instructions': 'Toss lettuce with dressing. Add croutons and cheese.',
         'isFavorite': 0,
@@ -136,7 +136,7 @@ class DatabaseHelper {
       },
       {
         'title': 'Margherita Pizza',
-        'image': 'https://example.com/margherita_pizza.jpg',
+        'image': 'assets/pizza.png',
         'ingredients': 'Pizza Dough, Tomato Sauce, Mozzarella, Basil',
         'instructions': 'Spread sauce on dough. Add cheese and basil. Bake.',
         'isFavorite': 0,
@@ -144,7 +144,7 @@ class DatabaseHelper {
       },
       {
         'title': 'Grilled Salmon',
-        'image': 'https://example.com/grilled_salmon.jpg',
+        'image': 'assets/salmon.png',
         'ingredients': 'Salmon, Olive Oil, Lemon, Garlic, Dill',
         'instructions': 'Marinate salmon. Grill until cooked.',
         'isFavorite': 0,
@@ -152,7 +152,7 @@ class DatabaseHelper {
       },
       {
         'title': 'Pancakes',
-        'image': 'https://example.com/pancakes.jpg',
+        'image': 'assets/pancakes.png',
         'ingredients': 'Flour, Eggs, Milk, Baking Powder, Sugar',
         'instructions': 'Mix ingredients. Cook on griddle.',
         'isFavorite': 0,
@@ -160,7 +160,7 @@ class DatabaseHelper {
       },
       {
         'title': 'Tomato Soup',
-        'image': 'https://example.com/tomato_soup.jpg',
+        'image': 'assets/soup.png',
         'ingredients': 'Tomatoes, Onions, Garlic, Basil, Cream',
         'instructions': 'Cook tomatoes, onions, and garlic. Blend and add cream.',
         'isFavorite': 0,
@@ -168,7 +168,7 @@ class DatabaseHelper {
       },
       {
         'title': 'Chocolate Cake',
-        'image': 'https://example.com/chocolate_cake.jpg',
+        'image': 'assets/cake.png',
         'ingredients': 'Flour, Cocoa Powder, Sugar, Eggs, Butter',
         'instructions': 'Mix ingredients. Bake.',
         'isFavorite': 0,

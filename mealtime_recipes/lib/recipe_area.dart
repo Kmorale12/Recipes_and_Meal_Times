@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'database_helper.dart';
-import 'recipe_details.dart'; // Import RecipeDetails
-import 'favorites_page.dart';
+import 'database_helper.dart'; // Import the DatabaseHelper
+import 'recipe_details.dart'; // Import RecipeDetails to navigate to it
+import 'favorites_page.dart'; // Import the FavoritesPage
 
 class RecipeArea extends StatefulWidget {
   @override
@@ -9,50 +9,62 @@ class RecipeArea extends StatefulWidget {
 }
 
 class _RecipeAreaState extends State<RecipeArea> {
-  Future<List<Map<String, dynamic>>> fetchRecipes([String query = '']) async {
-    final db = await DatabaseHelper().database;
-    if (query.isNotEmpty) {
-      print('Searching for: $query'); // Log the search query
-      final results = await db.query(
-        'recipes',
-        where: 'title LIKE ? OR ingredients LIKE ? OR dietary_tags LIKE ?',
-        whereArgs: ['%$query%', '%$query%', '%$query%'],
-      );
-      print('Search results: $results'); // Log the search results
-      return results;
-    }
-    return await db.query('recipes');
+  List<Map<String, dynamic>> recipes = [];
+  List<Map<String, dynamic>> filteredRecipes = [];
+  TextEditingController searchController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    fetchRecipes(); // Fetch recipes when this screen loads
+    searchController.addListener(_filterRecipes);
   }
 
-  Future<void> toggleFavorite(int id, int isFavorite) async {
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
+  }
+
+  // Function to fetch recipes from the database
+  Future<void> fetchRecipes() async {
+    final dbHelper = DatabaseHelper();
+    final List<Map<String, dynamic>> fetchedRecipes = await dbHelper.fetchRecipes();
+    setState(() {
+      recipes = fetchedRecipes;
+      filteredRecipes = fetchedRecipes;
+    });
+  }
+
+  void _filterRecipes() {
+    final query = searchController.text.toLowerCase();
+    setState(() {
+      filteredRecipes = recipes.where((recipe) {
+        final title = recipe['title'].toLowerCase();
+        final tags = recipe['dietary_tags']?.toLowerCase() ?? '';
+        return title.contains(query) || tags.contains(query);
+      }).toList();
+    });
+  }
+
+  Future<void> _toggleFavorite(int id, int isFavorite) async {
     final dbHelper = DatabaseHelper();
     await dbHelper.toggleFavorite(id, isFavorite);
-    setState(() {});
+    fetchRecipes(); // Refresh the recipes list
   }
-
-  String searchQuery = '';
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Recipe Area'),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context);
-          },
+        title: TextField(
+          controller: searchController,
+          decoration: InputDecoration(
+            hintText: 'Search by title or dietary tag',
+            border: InputBorder.none,
+          ),
         ),
         actions: [
-          IconButton(
-            icon: Icon(Icons.search),
-            onPressed: () {
-              showSearch(
-                context: context,
-                delegate: RecipeSearchDelegate(fetchRecipes, toggleFavorite),
-              );
-            },
-          ),
           IconButton(
             icon: Icon(Icons.favorite),
             onPressed: () {
@@ -64,33 +76,35 @@ class _RecipeAreaState extends State<RecipeArea> {
           ),
         ],
       ),
-      body: FutureBuilder<List<Map<String, dynamic>>>(
-        future: fetchRecipes(searchQuery),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else if (!snapshot.hasData || snapshot.data?.isEmpty == true) {
-            return Center(child: Text('No recipes found.'));
-          } else {
-            return ListView.builder(
-              itemCount: snapshot.data?.length ?? 0,
+      body: filteredRecipes.isEmpty
+          ? Center(child: CircularProgressIndicator()) // Show loading indicator if recipes are not yet loaded
+          : ListView.builder(
+              itemCount: filteredRecipes.length,
               itemBuilder: (context, index) {
-                final recipe = snapshot.data![index];
+                final recipe = filteredRecipes[index];
                 return ListTile(
-                  leading: Image.network(recipe['image']),
+                  leading: Image.asset(
+                    recipe['image'],
+                    width: 50,
+                    height: 50,
+                    fit: BoxFit.cover,
+                  ),
                   title: Text(recipe['title']),
+                  subtitle: Text(recipe['dietary_tags'] ?? ''),
                   trailing: IconButton(
                     icon: Icon(
                       recipe['isFavorite'] == 1 ? Icons.favorite : Icons.favorite_border,
                       color: recipe['isFavorite'] == 1 ? Colors.red : null,
                     ),
-                    onPressed: () {
-                      toggleFavorite(recipe['id'], recipe['isFavorite'] == 1 ? 0 : 1);
+                    onPressed: () async {
+                      await _toggleFavorite(recipe['id'], recipe['isFavorite'] == 1 ? 0 : 1);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('${recipe['title']} ${recipe['isFavorite'] == 1 ? 'removed from' : 'added to'} favorites')),
+                      );
                     },
                   ),
                   onTap: () {
+                    // Navigate to RecipeDetails with the recipe details
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -100,88 +114,7 @@ class _RecipeAreaState extends State<RecipeArea> {
                   },
                 );
               },
-            );
-          }
-        },
-      ),
+            ),
     );
-  }
-}
-
-class RecipeSearchDelegate extends SearchDelegate {
-  final Future<List<Map<String, dynamic>>> Function(String) fetchRecipes;
-  final Future<void> Function(int, int) toggleFavorite;
-
-  RecipeSearchDelegate(this.fetchRecipes, this.toggleFavorite);
-
-  @override
-  List<Widget> buildActions(BuildContext context) {
-    return [
-      IconButton(
-        icon: Icon(Icons.clear),
-        onPressed: () {
-          query = '';
-        },
-      ),
-    ];
-  }
-
-  @override
-  Widget buildLeading(BuildContext context) {
-    return IconButton(
-      icon: Icon(Icons.arrow_back),
-      onPressed: () {
-        close(context, null);
-      },
-    );
-  }
-
-  @override
-  Widget buildResults(BuildContext context) {
-    return FutureBuilder<List<Map<String, dynamic>>>(
-      future: fetchRecipes(query),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
-          return Center(child: Text('Error: ${snapshot.error}'));
-        } else if (!snapshot.hasData || snapshot.data?.isEmpty == true) {
-          return Center(child: Text('No recipes found.'));
-        } else {
-          return ListView.builder(
-            itemCount: snapshot.data?.length ?? 0,
-            itemBuilder: (context, index) {
-              final recipe = snapshot.data![index];
-              return ListTile(
-                leading: Image.network(recipe['image']),
-                title: Text(recipe['title']),
-                trailing: IconButton(
-                  icon: Icon(
-                    recipe['isFavorite'] == 1 ? Icons.favorite : Icons.favorite_border,
-                    color: recipe['isFavorite'] == 1 ? Colors.red : null,
-                  ),
-                  onPressed: () {
-                    toggleFavorite(recipe['id'], recipe['isFavorite'] == 1 ? 0 : 1);
-                  },
-                ),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => RecipeDetails(recipe: recipe),
-                    ),
-                  );
-                },
-              );
-            },
-          );
-        }
-      },
-    );
-  }
-
-  @override
-  Widget buildSuggestions(BuildContext context) {
-    return Container();
   }
 }

@@ -11,29 +11,46 @@ class RecipeDetails extends StatelessWidget {
       appBar: AppBar(
         title: Text(recipe['title']),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
+      body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Image.network(recipe['image']),
-            SizedBox(height: 16.0),
-            Text(
-              recipe['title'],
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          children: [
+            // Load the image in a larger size
+            Image.asset(
+              recipe['image'], // Ensure this path is correct
+              fit: BoxFit.cover,
+              width: double.infinity,
+              height: 300, // Set a larger height for detail view
             ),
-            SizedBox(height: 16.0),
-            Text(
-              'Ingredients',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(
+                recipe['title'],
+                style: Theme.of(context).textTheme.headlineSmall,
+              ),
             ),
-            Text(recipe['ingredients']),
-            SizedBox(height: 16.0),
-            Text(
-              'Instructions',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(
+                'Ingredients:\n${recipe['ingredients']}',
+                style: Theme.of(context).textTheme.bodyLarge,
+              ),
             ),
-            Text(recipe['instructions']),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(
+                'Instructions:\n${recipe['instructions']}',
+                style: Theme.of(context).textTheme.bodyLarge,
+              ),
+            ),
+            if (recipe['dietary_tags'] != null)
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  'Dietary Tags: ${recipe['dietary_tags']}',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+              ),
           ],
         ),
       ),
