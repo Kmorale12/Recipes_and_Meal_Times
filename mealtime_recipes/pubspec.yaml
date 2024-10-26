@@ -23,4 +23,13 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/images/
+    - assets/images/carbonara.png
+    - assets/images/tacos.png
+    - assets/images/curry.png
+    - assets/images/stroganoff.png
+    - assets/images/salad.png
+    - assets/images/pizza.png
+    - assets/images/salmon.png
+    - assets/images/pancakes.png
+    - assets/images/soup.png
+    - assets/images/cake.png
