@@ -160,6 +160,7 @@ class DatabaseHelper {
     );
     if (result.isNotEmpty) {
       final ingredients = result.first['ingredients'] as String;
+      print('Fetched ingredients for $title: $ingredients'); // Debugging statement
       return ingredients.split(', ');
     }
     return [];
