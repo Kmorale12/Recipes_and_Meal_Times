@@ -164,25 +164,29 @@ class _GroceryListState extends State<GroceryList> {
               itemCount: _filteredGroceryItems.length,
               itemBuilder: (context, index) {
                 final item = _filteredGroceryItems[index];
-                return ListTile(
-                  leading: Checkbox(
-                    value: item.isChecked,
-                    onChanged: (bool? value) {
-                      _toggleItemChecked(index);
-                    },
-                  ),
-                  title: Text(
-                    item.name,
-                    style: TextStyle(
-                      decoration:
-                          item.isChecked ? TextDecoration.lineThrough : null,
+                return Container(
+                  constraints: BoxConstraints.tightFor(
+                      width: MediaQuery.of(context).size.width),
+                  child: ListTile(
+                    leading: Checkbox(
+                      value: item.isChecked,
+                      onChanged: (bool? value) {
+                        _toggleItemChecked(index);
+                      },
                     ),
-                  ),
-                  trailing: IconButton(
-                    icon: Icon(Icons.delete),
-                    onPressed: () {
-                      _deleteItem(index);
-                    },
+                    title: Text(
+                      item.name,
+                      style: TextStyle(
+                        decoration:
+                            item.isChecked ? TextDecoration.lineThrough : null,
+                      ),
+                    ),
+                    trailing: IconButton(
+                      icon: Icon(Icons.delete),
+                      onPressed: () {
+                        _deleteItem(index);
+                      },
+                    ),
                   ),
                 );
               },
