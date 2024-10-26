@@ -1,12 +1,19 @@
 import 'package:flutter/material.dart';
+import 'database_helper.dart';
+import 'login_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
+  final int userId;
+
+  SettingsScreen({required this.userId});
+
   @override
   _SettingsScreenState createState() => _SettingsScreenState();
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
   bool _isDarkMode = false;
+  final _passwordController = TextEditingController();
 
   void _toggleDarkMode(bool value) {
     setState(() {
@@ -14,16 +21,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
     });
   }
 
-  void _updatePassword() {
-    // Implement password update functionality
+  void _updatePassword() async {
+    final newPassword = _passwordController.text;
+    await DatabaseHelper().updateUserPassword(widget.userId, newPassword);
+    // Show success message
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Password updated successfully')),
+    );
   }
 
-  void _updateEmail() {
-    // Implement email update functionality
-  }
-
-  void _support() {
-    // Implement support functionality
+  void _logout() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => LoginScreen()),
+    );
   }
 
   @override
@@ -41,15 +52,32 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           ListTile(
             title: Text('Update Password'),
-            onTap: _updatePassword,
+            onTap: () {
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: Text('Update Password'),
+                  content: TextField(
+                    controller: _passwordController,
+                    decoration: InputDecoration(labelText: 'New Password'),
+                    obscureText: true,
+                  ),
+                  actions: <Widget>[
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        _updatePassword();
+                      },
+                      child: Text('Update'),
+                    ),
+                  ],
+                ),
+              );
+            },
           ),
           ListTile(
-            title: Text('Update Email'),
-            onTap: _updateEmail,
-          ),
-          ListTile(
-            title: Text('Support'),
-            onTap: _support,
+            title: Text('Logout'),
+            onTap: _logout,
           ),
         ],
       ),

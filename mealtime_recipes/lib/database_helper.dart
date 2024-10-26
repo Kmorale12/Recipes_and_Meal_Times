@@ -18,12 +18,21 @@ class DatabaseHelper {
     String path = join(await getDatabasesPath(), 'app_database.db');
     return await openDatabase(
       path,
-      version: 1,
+      version: 1, // Incremented version number
       onCreate: _onCreate,
     );
   }
 
   Future<void> _onCreate(Database db, int version) async {
+    await db.execute('''
+      CREATE TABLE users (
+        id INTEGER PRIMARY KEY,
+        username TEXT UNIQUE,
+        name TEXT,
+        password TEXT
+      )
+    ''');
+
     await db.execute('''
       CREATE TABLE recipes (
         id INTEGER PRIMARY KEY,
@@ -37,11 +46,50 @@ class DatabaseHelper {
     ''');
   }
 
+  // User registration
+  Future<void> registerUser(String username, String name, String password) async {
+    final db = await database;
+    await db.insert('users', {'username': username, 'name': name, 'password': password});
+  }
+
+  // User login
+  Future<Map<String, dynamic>?> loginUser(String username, String password) async {
+    final db = await database;
+    try {
+      print('Attempting to log in user: $username');
+      final result = await db.query(
+        'users',
+        where: 'username = ? AND password = ?',
+        whereArgs: [username, password],
+      );
+      print('Query result: $result');
+      if (result.isNotEmpty) {
+        return result.first;
+      }
+    } catch (e) {
+      print('Error during login: $e');
+    }
+    return null;
+  }
+
+  // Update user password
+  Future<void> updateUserPassword(int id, String newPassword) async {
+    final db = await database;
+    await db.update(
+      'users',
+      {'password': newPassword},
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  // Insert a single recipe into the database
   Future<void> insertRecipe(Map<String, dynamic> recipe) async {
     final db = await database;
     await db.insert('recipes', recipe, conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
+  // Insert sample recipes into the database
   Future<void> insertSampleRecipes() async {
     final db = await database;
 
@@ -133,6 +181,7 @@ class DatabaseHelper {
     }
   }
 
+  // Fetch all recipes or search by query
   Future<List<Map<String, dynamic>>> fetchRecipes([String query = '']) async {
     final db = await database;
     if (query.isNotEmpty) {
@@ -145,11 +194,13 @@ class DatabaseHelper {
     return await db.query('recipes');
   }
 
+  // Fetch favorite recipes
   Future<List<Map<String, dynamic>>> fetchFavoriteRecipes() async {
     final db = await database;
     return await db.query('recipes', where: 'isFavorite = ?', whereArgs: [1]);
   }
 
+  // Fetch ingredients by recipe title
   Future<List<String>> fetchIngredientsByTitle(String title) async {
     final db = await database;
     final result = await db.query(
@@ -160,11 +211,13 @@ class DatabaseHelper {
     );
     if (result.isNotEmpty) {
       final ingredients = result.first['ingredients'] as String;
+      print('Fetched ingredients for $title: $ingredients'); // Debugging statement
       return ingredients.split(', ');
     }
     return [];
   }
 
+  // Update favorite status of a recipe
   Future<void> updateFavoriteStatus(int id, int isFavorite) async {
     final db = await database;
     await db.update(
@@ -175,6 +228,7 @@ class DatabaseHelper {
     );
   }
 
+  // Toggle favorite status of a recipe
   Future<void> toggleFavorite(int id, int isFavorite) async {
     await updateFavoriteStatus(id, isFavorite);
   }
