@@ -163,6 +163,14 @@ class MealSection extends StatefulWidget {
 
 class _MealSectionState extends State<MealSection> {
   String selectedMeal = '';
+  late List<Map<String, dynamic>> _dropdownItems;
+
+  @override
+  void initState() {
+    super.initState();
+    // Copy favorite recipes to _dropdownItems initially
+    _dropdownItems = List.from(widget.favoriteRecipes);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -180,7 +188,8 @@ class _MealSectionState extends State<MealSection> {
           hint: Text('Select your ${widget.mealType}'),
           value: selectedMeal.isEmpty ? null : selectedMeal,
           items: [
-            ...widget.favoriteRecipes.map((recipe) {
+            // Add favorite recipes and custom meals as DropdownMenuItems
+            ..._dropdownItems.map((recipe) {
               return DropdownMenuItem<String>(
                 value: recipe['title'],
                 child: Text(recipe['title']),
@@ -194,9 +203,9 @@ class _MealSectionState extends State<MealSection> {
           onChanged: (value) {
             if (value == 'Custom Input') {
               _showCustomInputDialog(context);
-            } else {
+            } else if (value != null) {
               setState(() {
-                selectedMeal = value!;
+                selectedMeal = value;
                 widget.onMealChanged(selectedMeal);
               });
             }
@@ -235,6 +244,10 @@ class _MealSectionState extends State<MealSection> {
                   setState(() {
                     selectedMeal = customMeal;
                     widget.onMealChanged(selectedMeal);
+                    // Temporarily add custom meal to _dropdownItems for this session
+                    if (!_dropdownItems.any((item) => item['title'] == customMeal)) {
+                      _dropdownItems.add({'title': customMeal});
+                    }
                   });
                 }
                 Navigator.of(context).pop();
